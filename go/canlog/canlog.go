@@ -14,8 +14,12 @@ const (
 	DATA
 )
 
+type CanLog struct {
+	logs []*log
+}
+
 // Canlog型はCanlogに合わせたデータ構造を持ったオブジェクト
-type Canlog struct {
+type log struct {
 	Prevtime float64
 	Crnttime float64
 	Difftime float64
@@ -28,16 +32,14 @@ type Canlog struct {
 	Remain   string
 }
 
-type Canlogs []Canlog
-
 // Newは、新たにCanlogオブジェクトを作成する
-func New() Canlogs {
-	var c Canlogs
+func New() CanLog {
+	var c CanLog
 	return c
 }
 
 // Parseは、ファイルを解析してCanlogオブジェクトを作成する
-func (records *Canlogs) Parse(filename string) error {
+func (c *CanLog) Parse(filename string) error {
 	fp, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -48,48 +50,48 @@ func (records *Canlogs) Parse(filename string) error {
 
 	p := 0.000000
 	for scanner.Scan() {
-		c := new(Canlog)
+		l := new(log)
 
 		fs := strings.Fields(scanner.Text())
 		if fs[1] == "1" || fs[1] == "2" {
-			c.Prevtime = p
-			c.Crnttime, _ = strconv.ParseFloat(fs[0], 32)
-			c.Difftime = c.Crnttime - p
-			c.Ch = fs[1]
-			c.Id = fs[2]
-			c.Dir = fs[3]
-			c.Stat = fs[4]
-			c.Dlc, _ = strconv.Atoi(fs[5])
-			for _, f := range fs[6 : c.Dlc+6] {
+			l.Prevtime = p
+			l.Crnttime, _ = strconv.ParseFloat(fs[0], 32)
+			l.Difftime = l.Crnttime - p
+			l.Ch = fs[1]
+			l.Id = fs[2]
+			l.Dir = fs[3]
+			l.Stat = fs[4]
+			l.Dlc, _ = strconv.Atoi(fs[5])
+			for _, f := range fs[6 : l.Dlc+6] {
 				d, _ := strconv.ParseInt(f, 16, 32)
-				c.Data = append(c.Data, d)
+				l.Data = append(l.Data, d)
 			}
-			c.Remain = strings.Join(fs[c.Dlc+7:c.Dlc+15], " ")
-			*records = append(*records, *c)
-			p = c.Crnttime
+			l.Remain = strings.Join(fs[l.Dlc+7:l.Dlc+15], " ")
+			c.logs = append(c.logs, l)
+			p = l.Crnttime
 		}
 	}
 	return scanner.Err()
 }
 
 // PickRecordは、引数で渡したCanlogオブジェクトからidsで渡したIDが存在するレコードのみを抽出したCanlogオブジェクトを返す
-func PickRecord(records Canlogs, ids []string) Canlogs {
-	var nc Canlogs
-	for _, r := range records {
+func PickRecord(c CanLog, ids []string) CanLog {
+	var nc CanLog
+	for _, r := range c.logs {
 		if isContains(r.Id, ids) {
-			nc = append(nc, r)
+			nc.logs = append(nc.logs, r)
 		}
 	}
 	return nc
 }
 
 // DelRecordは、引数で渡したCanlogオブジェクトからidsで渡したIDが存在するレコードを削除したCanlogオブジェクトを返す
-func DelRecord(records Canlogs, ids []string) Canlogs {
-	var nc Canlogs
+func DelRecord(c CanLog, ids []string) CanLog {
+	var nc CanLog
 
-	for _, r := range records {
+	for _, r := range c.logs {
 		if !isContains(r.Id, ids) {
-			nc = append(nc, r)
+			nc.logs = append(nc.logs, r)
 		}
 	}
 	return nc
@@ -105,9 +107,9 @@ func isContains(tgt string, arr []string) bool {
 	return false
 }
 
-// PrintLogは、Canlogsオブジェクトを1レコードずつフォーマットして標準出力へ出力する
-func (records *Canlogs) PrintLog(opt int) {
-	for _, r := range *records {
+// PrintLogは、CanLogオブジェクトを1レコードずつフォーマットして標準出力へ出力する
+func (c *CanLog) PrintLog(opt int) {
+	for _, r := range c.logs {
 		switch opt {
 		case WHOLE:
 			s := convertDataToString(r, " ")
@@ -126,7 +128,7 @@ func (records *Canlogs) PrintLog(opt int) {
 }
 
 // convertDataToStringは、レコードの配列データから、sepで区切った文字列へ変換する
-func convertDataToString(record Canlog, sep string) string {
+func convertDataToString(record *log, sep string) string {
 	var data []string
 
 	for _, d := range record.Data {
