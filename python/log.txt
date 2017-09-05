@@ -1,0 +1,23 @@
+date Thu Apr 11 04:41:25 pm 2013
+base hex  timestamps absolute
+internal events logged
+// version 8.0.0
+Begin Triggerblock Thu Apr 11 04:41:25 pm 2013
+   0.000000 Start of measurement
+   0.001316 CAN 1 Status:chip status error active
+   0.001399 1  1F3             Rx   d 3 00 10 00  Length = 146000 BitCount = 77 ID = 499
+   0.002763 1  1E5             Rx   d 8 4C 00 21 10 00 00 00 B9  Length = 228000 BitCount = 118 ID = 485
+   0.003009 1  710             Rx   d 8 00 5F 00 00 00 00 13 BE  Length = 238000 BitCount = 123 ID = 1808
+   0.003175 1  C7              Rx   d 4 00 38 26 9B  Length = 158000 BitCount = 83 ID = 199
+   0.003349 1  1CC             Rx   d 4 00 00 00 00  Length = 165883 BitCount = 87 ID = 460
+   0.003586 1  F9              Rx   d 8 00 DA 40 33 D0 63 FF 1C  Length = 228000 BitCount = 118 ID = 249
+   0.003738 1  1CF             Rx   d 3 00 00 05  Length = 144000 BitCount = 76 ID = 463
+   0.003976 1  711             Rx   d 8 00 23 00 7E FF EB FC 6F  Length = 230000 BitCount = 119 ID = 1809
+   0.004148 1  1D0             Rx   d 4 00 00 00 00  Length = 164000 BitCount = 86 ID = 464
+   0.004382 1  C1              Rx   d 8 30 14 F6 08 32 B4 F7 70  Length = 226000 BitCount = 117 ID = 193
+   0.004615 1  C5              Rx   d 8 31 27 F8 44 32 B0 F8 5C  Length = 224121 BitCount = 116 ID = 197
+   0.004825 1  BE              Rx   d 6 00 00 4D 00 00 00  Length = 202242 BitCount = 105 ID = 190
+   0.005051 1  D1              Rx   d 7 80 00 BF FE 00 FE 00  Length = 218121 BitCount = 113 ID = 209
+   0.005292 1  C9              Rx   d 8 80 2C 5A 60 00 00 18 00  Length = 232242 BitCount = 120 ID = 201
+   0.005538 1  1C8             Rx   d 8 80 00 00 00 FF FE 3F FE  Length = 238121 BitCount = 123 ID = 456
+   0.005774 1  18E             Rx   d 8 00 00 00 84 78 46 08 45  Length = 228242 BitCount = 118 ID = 398

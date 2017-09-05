@@ -1,0 +1,26 @@
+use strict;
+use warnings;
+use Data::Dumper;
+
+my $Person = {
+    Name     => '',
+    Comment  => '',
+    Monsters => [
+        {
+            Name  => '',
+            Child => [],
+        }
+    ],
+    Others   => '',
+};
+
+$Person->{Name} = 'Iguch';
+$Person->{Comment} = 'hogehoge';
+$Person->{Monsters}[0]->{Name} = 'M1';
+push $Person->{Monsters}[0]->{Child}, 'C1';
+push $Person->{Monsters}[0]->{Child}, 'C2';
+$Person->{Monsters}[1]->{Name} = 'M2';
+$Person->{Monsters}[2]->{Name} = 'M2';
+$Person->{Others} = 'hogehoge';
+
+print Dumper $Person;
