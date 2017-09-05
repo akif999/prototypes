@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./canlog"
+	"github.com/akif999/prototypes/go/canlog"
 	"log"
 	"os"
 )
