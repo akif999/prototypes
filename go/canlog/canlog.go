@@ -105,20 +105,20 @@ func (c *CanLog) PrintLog(opt int) {
 	for _, r := range c.logs {
 		switch opt {
 		case WHOLE:
-			s := convertDataToString(r, " ")
+			s := DataToString(r, " ")
 			fmt.Printf("%06f %s %03s %s %X %s\n", r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
 		case DATA:
-			s := convertDataToString(r, "")
+			s := DataToString(r, "")
 			fmt.Printf("%s\n", s)
 		default:
-			s := convertDataToString(r, " ")
+			s := DataToString(r, " ")
 			fmt.Printf("%06f %s %03s %s %X %s\n", r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
 		}
 	}
 }
 
-// convertDataToStringは、レコードの配列データから、sepで区切った文字列へ変換する
-func convertDataToString(record *log, sep string) string {
+// DataToStringは、レコードの配列データから、sepで区切った文字列へ変換する
+func DataToString(record *log, sep string) string {
 	var data []string
 
 	for _, d := range record.Data {
