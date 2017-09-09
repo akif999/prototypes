@@ -109,16 +109,20 @@ func (c *CanLog) String() string {
 }
 
 func formatLog(time float64, ch, id, dir string, dlc int, data []byte) string {
-	s := BytesToSeparatedString(data, " ")
+	s := bytesToSeparatedString(data, " ")
 	return fmt.Sprintf("%06f %s %03s %s %X %s\n", time, ch, id, dir, dlc, s)
 }
 
-// DataToStringは、レコードの配列データから、sepで区切った文字列へ変換する
-func BytesToSeparatedString(bytes []byte, sep string) string {
+// bytesToSeparatedStringは、byte sliceをsepで区切った文字列へ変換する
+func bytesToSeparatedString(bytes []byte, sep string) string {
 	var data []string
 
 	for _, b := range bytes {
 		data = append(data, fmt.Sprintf("%02X", b))
 	}
 	return strings.Join(data, sep)
+}
+
+func (c *CanLog) Format(formater FormatFunc) {
+	c.formater = formater
 }

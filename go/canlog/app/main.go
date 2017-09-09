@@ -26,6 +26,11 @@ func main() {
 	fmt.Println()
 
 	c = canlog.DelRecord(c, ids)
+	c.Format(formatFuncCustom)
 	s = c.String()
 	fmt.Print(s)
+}
+
+func formatFuncCustom(time float64, ch, id, dir string, dlc int, data []byte) string {
+	return fmt.Sprintf("%06f %03s\n", time, id)
 }
