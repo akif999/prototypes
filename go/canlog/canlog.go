@@ -19,14 +19,14 @@ type CanLog struct {
 
 // Canlog型はCanlogに合わせたデータ構造を持ったオブジェクト
 type log struct {
-	Crnttime float64
-	Ch       string
-	Id       string
-	Dir      string
-	Stat     string
-	Dlc      int
-	Data     []int64
-	Remain   string
+	time   float64
+	ch     string
+	id     string
+	dir    string
+	stat   string
+	dlc    int
+	data   []int64
+	remain string
 }
 
 // Newは、新たにCanlogオブジェクトを作成する
@@ -50,17 +50,17 @@ func (c *CanLog) Parse(filename string) error {
 
 		fs := strings.Fields(scanner.Text())
 		if fs[1] == "1" || fs[1] == "2" {
-			l.Crnttime, _ = strconv.ParseFloat(fs[0], 32)
-			l.Ch = fs[1]
-			l.Id = fs[2]
-			l.Dir = fs[3]
-			l.Stat = fs[4]
-			l.Dlc, _ = strconv.Atoi(fs[5])
-			for _, f := range fs[6 : l.Dlc+6] {
+			l.time, _ = strconv.ParseFloat(fs[0], 32)
+			l.ch = fs[1]
+			l.id = fs[2]
+			l.dir = fs[3]
+			l.stat = fs[4]
+			l.dlc, _ = strconv.Atoi(fs[5])
+			for _, f := range fs[6 : l.dlc+6] {
 				d, _ := strconv.ParseInt(f, 16, 32)
-				l.Data = append(l.Data, d)
+				l.data = append(l.data, d)
 			}
-			l.Remain = strings.Join(fs[l.Dlc+7:l.Dlc+15], " ")
+			l.remain = strings.Join(fs[l.dlc+7:l.dlc+15], " ")
 			c.logs = append(c.logs, l)
 		}
 	}
@@ -71,7 +71,7 @@ func (c *CanLog) Parse(filename string) error {
 func PickRecord(c CanLog, ids []string) CanLog {
 	var nc CanLog
 	for _, r := range c.logs {
-		if isContains(r.Id, ids) {
+		if isContains(r.id, ids) {
 			nc.logs = append(nc.logs, r)
 		}
 	}
@@ -83,7 +83,7 @@ func DelRecord(c CanLog, ids []string) CanLog {
 	var nc CanLog
 
 	for _, r := range c.logs {
-		if !isContains(r.Id, ids) {
+		if !isContains(r.id, ids) {
 			nc.logs = append(nc.logs, r)
 		}
 	}
@@ -100,19 +100,21 @@ func isContains(tgt string, arr []string) bool {
 	return false
 }
 
+type formatFunc func(time, ch, id, dir, dlc string, data []byte) string
+
 // PrintLogは、CanLogオブジェクトを1レコードずつフォーマットして標準出力へ出力する
 func (c *CanLog) PrintLog(opt int) {
 	for _, r := range c.logs {
 		switch opt {
 		case WHOLE:
 			s := DataToString(r, " ")
-			fmt.Printf("%06f %s %03s %s %X %s\n", r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
+			fmt.Printf("%06f %s %03s %s %X %s\n", r.time, r.ch, r.id, r.dir, r.dlc, s)
 		case DATA:
 			s := DataToString(r, "")
 			fmt.Printf("%s\n", s)
 		default:
 			s := DataToString(r, " ")
-			fmt.Printf("%06f %s %03s %s %X %s\n", r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
+			fmt.Printf("%06f %s %03s %s %X %s\n", r.time, r.ch, r.id, r.dir, r.dlc, s)
 		}
 	}
 }
@@ -121,7 +123,7 @@ func (c *CanLog) PrintLog(opt int) {
 func DataToString(record *log, sep string) string {
 	var data []string
 
-	for _, d := range record.Data {
+	for _, d := range record.data {
 		data = append(data, fmt.Sprintf("%02X", d))
 	}
 	return strings.Join(data, sep)
