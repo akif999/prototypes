@@ -10,7 +10,6 @@ import (
 
 const (
 	WHOLE = iota
-	WITHDIFFTIME
 	DATA
 )
 
@@ -20,9 +19,7 @@ type CanLog struct {
 
 // Canlog型はCanlogに合わせたデータ構造を持ったオブジェクト
 type log struct {
-	Prevtime float64
 	Crnttime float64
-	Difftime float64
 	Ch       string
 	Id       string
 	Dir      string
@@ -48,15 +45,12 @@ func (c *CanLog) Parse(filename string) error {
 
 	scanner := bufio.NewScanner(fp)
 
-	p := 0.000000
 	for scanner.Scan() {
 		l := new(log)
 
 		fs := strings.Fields(scanner.Text())
 		if fs[1] == "1" || fs[1] == "2" {
-			l.Prevtime = p
 			l.Crnttime, _ = strconv.ParseFloat(fs[0], 32)
-			l.Difftime = l.Crnttime - p
 			l.Ch = fs[1]
 			l.Id = fs[2]
 			l.Dir = fs[3]
@@ -68,7 +62,6 @@ func (c *CanLog) Parse(filename string) error {
 			}
 			l.Remain = strings.Join(fs[l.Dlc+7:l.Dlc+15], " ")
 			c.logs = append(c.logs, l)
-			p = l.Crnttime
 		}
 	}
 	return scanner.Err()
@@ -114,9 +107,6 @@ func (c *CanLog) PrintLog(opt int) {
 		case WHOLE:
 			s := convertDataToString(r, " ")
 			fmt.Printf("%06f %s %03s %s %X %s\n", r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
-		case WITHDIFFTIME:
-			s := convertDataToString(r, " ")
-			fmt.Printf("%06f %06f %s %03s %s %X %s\n", r.Difftime, r.Crnttime, r.Ch, r.Id, r.Dir, r.Dlc, s)
 		case DATA:
 			s := convertDataToString(r, "")
 			fmt.Printf("%s\n", s)

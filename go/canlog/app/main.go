@@ -22,7 +22,6 @@ func main() {
 
 	c = canlog.DelRecord(c, ids)
 	c.PrintLog(canlog.WHOLE)
-	c.PrintLog(canlog.WITHDIFFTIME)
 	c.PrintLog(canlog.DATA)
 
 }
