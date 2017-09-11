@@ -1,4 +1,0 @@
-name = "canlog"
-# badges = ["travis"]
-module_maker="ModuleBuildTiny"
-
