@@ -27,11 +27,16 @@ type log struct {
 
 type FormatFunc func(time float64, ch, id, dir string, dlc int, data []byte) string
 
-// Newは、新たにCanlogオブジェクトを作成する
+// NewCanLog は、新たにCanlogオブジェクトを作成する
 func NewCanLog() *CanLog {
 	return &CanLog{
 		formater: formatLog,
 	}
+}
+
+// NewLog は、新たにlogオブジェクトを作成する
+func newLog() *log {
+	return &log{}
 }
 
 // Parseは、ファイルを解析してCanlogオブジェクトを作成する
@@ -45,7 +50,7 @@ func (c *CanLog) Parse(filename string) error {
 	scanner := bufio.NewScanner(fp)
 
 	for scanner.Scan() {
-		l := new(log)
+		l := newLog()
 
 		fs := strings.Fields(scanner.Text())
 		if fs[1] == "1" || fs[1] == "2" {
