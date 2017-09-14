@@ -14,7 +14,7 @@ func main() {
 		panic("require argument")
 	}
 	filename := os.Args[1]
-	ids := []string{"1F3", "710", "1C8"}
+	ids := []uint16{0x1F3, 0x710, 0x1C8}
 
 	c := canlog.NewCanLog()
 	err := c.Parse(filename)
@@ -34,6 +34,6 @@ func main() {
 	fmt.Print(s)
 }
 
-func formatFuncCustom(time float64, ch, id, dir string, dlc int, data []byte) string {
+func formatFuncCustom(time float64, ch uint8, id uint16, dir string, dlc uint8, data []byte) string {
 	return fmt.Sprintf("%06f %03s\n", time, id)
 }

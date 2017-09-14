@@ -16,16 +16,16 @@ type CanLog struct {
 // Canlog型はCanlogに合わせたデータ構造を持ったオブジェクト
 type log struct {
 	time   float64
-	ch     string
-	id     string
+	ch     uint8
+	id     uint16
 	dir    string
 	stat   string
-	dlc    int
+	dlc    uint8
 	data   []byte
 	remain string
 }
 
-type FormatFunc func(time float64, ch, id, dir string, dlc int, data []byte) string
+type FormatFunc func(time float64, ch uint8, id uint16, dir string, dlc uint8, data []byte) string
 
 // NewCanLog は、新たにCanlogオブジェクトを作成する
 func NewCanLog() *CanLog {
@@ -40,7 +40,7 @@ func newLog() *log {
 }
 
 // Parseは、ファイルを解析してCanlogオブジェクトを作成する
-func (c *CanLog) Parse(filename string) error {
+func (cl *CanLog) Parse(filename string) error {
 	fp, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -54,25 +54,40 @@ func (c *CanLog) Parse(filename string) error {
 
 		fs := strings.Fields(scanner.Text())
 		if fs[1] == "1" || fs[1] == "2" {
-			l.time, _ = strconv.ParseFloat(fs[0], 32)
-			l.ch = fs[1]
-			l.id = fs[2]
+			l.time, err = strconv.ParseFloat(fs[0], 32)
+			if err != nil {
+				return err
+			}
+			c, err := strconv.ParseUint(fs[1], 10, 32)
+			if err != nil {
+				return err
+			}
+			l.ch = uint8(c)
+			i, err := strconv.ParseUint(fs[2], 16, 32)
+			if err != nil {
+				return err
+			}
+			l.id = uint16(i)
 			l.dir = fs[3]
 			l.stat = fs[4]
-			l.dlc, _ = strconv.Atoi(fs[5])
+			d, err := strconv.Atoi(fs[5])
+			if err != nil {
+				return err
+			}
+			l.dlc = uint8(d)
 			for _, f := range fs[6 : l.dlc+6] {
 				d, _ := strconv.ParseUint(f, 16, 32)
 				l.data = append(l.data, byte(d))
 			}
 			l.remain = strings.Join(fs[l.dlc+7:l.dlc+15], " ")
-			c.logs = append(c.logs, l)
+			cl.logs = append(cl.logs, l)
 		}
 	}
 	return scanner.Err()
 }
 
 // PickRecordは、引数で渡したCanlogオブジェクトからidsで渡したIDが存在するレコードのみを抽出したCanlogオブジェクトを返す
-func PickRecord(c *CanLog, ids []string) *CanLog {
+func PickRecord(c *CanLog, ids []uint16) *CanLog {
 	nc := NewCanLog()
 	for _, r := range c.logs {
 		if isContains(r.id, ids) {
@@ -83,7 +98,7 @@ func PickRecord(c *CanLog, ids []string) *CanLog {
 }
 
 // DelRecordは、引数で渡したCanlogオブジェクトからidsで渡したIDが存在するレコードを削除したCanlogオブジェクトを返す
-func DelRecord(c *CanLog, ids []string) *CanLog {
+func DelRecord(c *CanLog, ids []uint16) *CanLog {
 	nc := NewCanLog()
 
 	for _, r := range c.logs {
@@ -94,8 +109,8 @@ func DelRecord(c *CanLog, ids []string) *CanLog {
 	return nc
 }
 
-// isContainsは、文字列tgtが、配列arrに含まれているかをbooleanとして返す
-func isContains(tgt string, arr []string) bool {
+// isContainsは、tgtが、配列arrに含まれているかをbooleanとして返す
+func isContains(tgt uint16, arr []uint16) bool {
 	for _, e := range arr {
 		if e == tgt {
 			return true
@@ -113,7 +128,7 @@ func (c *CanLog) String() string {
 	return s
 }
 
-func formatLog(time float64, ch, id, dir string, dlc int, data []byte) string {
+func formatLog(time float64, ch uint8, id uint16, dir string, dlc uint8, data []byte) string {
 	s := bytesToSeparatedString(data, " ")
 	return fmt.Sprintf("%06f %s %03s %s %X %s\n", time, ch, id, dir, dlc, s)
 }
