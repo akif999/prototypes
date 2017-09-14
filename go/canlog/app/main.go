@@ -10,6 +10,9 @@ import (
 
 func main() {
 
+	if len(os.Args) < 2 {
+		panic("require argument")
+	}
 	filename := os.Args[1]
 	ids := []string{"1F3", "710", "1C8"}
 
