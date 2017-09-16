@@ -5,9 +5,25 @@ use strict;
 use warnings;
 use utf8;
 
-my $log = Log->new;
-$log->parse("   0.002763 1  1E5             Rx   d 8 4C 00 21 10 00 00 00 B9  Length = 228000 BitCount = 118 ID = 485");
-print $log->string;
+use Path::Tiny;
+use Getopt::Kingpin;
+
+my $kingpin = Getopt::Kingpin->new;
+
+my $filename = $kingpin->arg("file", "input log file")->string;
+
+$kingpin->parse;
+
+my $path = path($filename);
+
+foreach my $line ($path->lines) {
+    chomp($line);
+    if ($line =~ /^\s+\d+\.\d+\s[1-9]/) {
+        my $log = Log->new;
+        $log->parse($line);
+        print $log->string, "\n";
+    }
+}
 
 package Log;
 
@@ -23,14 +39,15 @@ use constant {
 sub new {
     my $class = shift;
     my $self = {};
-    $self->{TIME}   = undef;
-    $self->{CH}     = undef;
-    $self->{ID}     = undef;
-    $self->{DIR}    = undef;
-    $self->{STAT}   = undef;
-    $self->{DLC}    = undef;
-    $self->{DATA}   = [];
-    $self->{REMAIN} = [];
+    $self->{TIME}    = undef;
+    $self->{CH}      = undef;
+    $self->{ID}      = undef;
+    $self->{DIR}     = undef;
+    $self->{STAT}    = undef;
+    $self->{DLC}     = undef;
+    $self->{DATA}    = [];
+    $self->{REMAIN}  = [];
+    $self->{SPLITER} = " ";
     return bless $self, $class;
 }
 
@@ -41,21 +58,28 @@ sub parse {
     my @data = @fields[7..6+$dlc];
     my @remain = @fields[6+$dlc..scalar(@fields)-1];
 
-    $self->{TIME}   = int($time * 1000000);
-    $self->{CH}     = int($ch);
-    $self->{ID}     = hex($id);
-    $self->{DIR}    = $dir eq "Rx" ? RX : TX;
-    $self->{STAT}   = $stat;
-    $self->{DLC}    = $dlc;
-    @{$self->{DATA}}   =  map(hex, @data);
-    $self->{REMAIN} = @remain;
+    $self->{TIME}    = int($time * 1000000);
+    $self->{CH}      = int($ch);
+    $self->{ID}      = hex($id);
+    $self->{DIR}     = $dir eq "Rx" ? RX : TX;
+    $self->{STAT}    = $stat;
+    $self->{DLC}     = $dlc;
+    @{$self->{DATA}} =  map(hex, @data);
+    $self->{REMAIN}  = @remain;
 }
 
 sub string {
     my $self = shift;
-    my $str .= sprintf "%f %d, %03X %s %X", $self->{TIME} / 1000000, $self->{CH}, $self->{ID}, $self->{DIR} eq RX ? "Rx" : "Tx", $self->{DLC};
-    $str .= sprintf " %02X", $_ foreach @{$self->{DATA}};
+    my $sp = $self->{SPLITER};
+    my $str .= sprintf "%f%s%d%s%03X%s%s%s%X", $self->{TIME} / 1000000, $sp, $self->{CH},
+        $sp, $self->{ID}, $sp, $self->{DIR} eq RX ? "Rx" : "Tx", $sp, $self->{DLC};
+    $str .= sprintf "%s%02X", $sp, $_ foreach @{$self->{DATA}};
     return $str
+}
+
+sub spliter {
+    my ($self, $sp) = @_;
+    $self->{SPLITER} = $sp;
 }
 
 1;
