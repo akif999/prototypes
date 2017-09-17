@@ -13,6 +13,14 @@ $kingpin->parse;
 
 my $canlog = CanLog->new;
 $canlog->parse($filename);
+print $canlog->string, "\n";
+$canlog->stringer(sub{
+    my ($obj, $sp) = @_;
+    my $str .= sprintf "%f%s%d%s%03X%s%s%s%X", $obj->{TIME} / 1000000, $sp, $obj->{CH},
+        $sp, $obj->{ID}, $sp, $obj->{DIR} eq Log->RX ? "Rx" : "Tx", $sp, $obj->{DLC};
+    $str .= sprintf "%s%02X", $sp, $_ foreach @{$obj->{DATA}};
+    return $str
+});
 print $canlog->string;
 
 package CanLog;
@@ -26,6 +34,8 @@ sub new {
     my $class = shift;
     my $self = {};
     $self->{LOGS} = ();
+    $self->{SPLITER}  = " ";
+    $self->{STRINGER} = \&string_simple;
     return bless $self, $class;
 }
 
@@ -47,9 +57,27 @@ sub string {
     my $self = shift;
     my $str = "";
     foreach my $log (values($self->{LOGS})) {
-        $str .= $log->string . "\n";
+        $str .= $log->string($self->{STRINGER}, $self->{SPLITER}) . "\n";
     }
     return $str;
+}
+
+sub string_simple {
+    my ($obj, $sp) = @_;
+    my $str .= sprintf "%f%s%d%s%03X%s%s%s%X", $obj->{TIME} / 1000000, $sp, $obj->{CH},
+        $sp, $obj->{ID}, $sp, $obj->{DIR} eq Log->RX ? "Rx" : "Tx", $sp, $obj->{DLC};
+    $str .= sprintf "%s%02X", $sp, $_ foreach @{$obj->{DATA}};
+    return $str
+}
+
+sub spliter {
+    my ($self, $sp) = @_;
+    $self->{SPLITER} = $sp;
+}
+
+sub stringer {
+    my ($self, $subroutine) = @_;
+    $self->{STRINGER} = $subroutine;
 }
 
 package Log;
@@ -66,15 +94,14 @@ use constant {
 sub new {
     my $class = shift;
     my $self = {};
-    $self->{TIME}    = undef;
-    $self->{CH}      = undef;
-    $self->{ID}      = undef;
-    $self->{DIR}     = undef;
-    $self->{STAT}    = undef;
-    $self->{DLC}     = undef;
-    $self->{DATA}    = [];
-    $self->{REMAIN}  = [];
-    $self->{SPLITER} = " ";
+    $self->{TIME}     = undef;
+    $self->{CH}       = undef;
+    $self->{ID}       = undef;
+    $self->{DIR}      = undef;
+    $self->{STAT}     = undef;
+    $self->{DLC}      = undef;
+    $self->{DATA}     = [];
+    $self->{REMAIN}   = [];
     return bless $self, $class;
 }
 
@@ -96,15 +123,6 @@ sub parse {
 }
 
 sub string {
-    my $self = shift;
-    my $sp = $self->{SPLITER};
-    my $str .= sprintf "%f%s%d%s%03X%s%s%s%X", $self->{TIME} / 1000000, $sp, $self->{CH},
-        $sp, $self->{ID}, $sp, $self->{DIR} eq RX ? "Rx" : "Tx", $sp, $self->{DLC};
-    $str .= sprintf "%s%02X", $sp, $_ foreach @{$self->{DATA}};
-    return $str
-}
-
-sub spliter {
-    my ($self, $sp) = @_;
-    $self->{SPLITER} = $sp;
+    my ($self, $stringer, $spliter) = @_;
+    return &{$stringer}($self, $spliter);
 }
