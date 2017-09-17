@@ -5,24 +5,51 @@ use strict;
 use warnings;
 use utf8;
 
-use Path::Tiny;
 use Getopt::Kingpin;
 
 my $kingpin = Getopt::Kingpin->new;
-
 my $filename = $kingpin->arg("file", "input log file")->string;
-
 $kingpin->parse;
 
-my $path = path($filename);
+my $canlog = CanLog->new;
+$canlog->parse($filename);
+print $canlog->string;
 
-foreach my $line ($path->lines) {
-    chomp($line);
-    if ($line =~ /^\s+\d+\.\d+\s[1-9]/) {
-        my $log = Log->new;
-        $log->parse($line);
-        print $log->string, "\n";
+package CanLog;
+
+use 5.008001;
+use strict;
+use warnings;
+use Path::Tiny;
+
+sub new {
+    my $class = shift;
+    my $self = {};
+    $self->{LOGS} = ();
+    return bless $self, $class;
+}
+
+sub parse {
+    my ($self, $filename) = @_;
+
+    my $path = path($filename);
+    foreach my $line ($path->lines) {
+        chomp($line);
+        if ($line =~ /^\s+\d+\.\d+\s[1-9]/) {
+            my $log = Log->new;
+            $log->parse($line);
+            push @{$self->{LOGS}}, $log;
+        }
     }
+}
+
+sub string {
+    my $self = shift;
+    my $str = "";
+    foreach my $log (values($self->{LOGS})) {
+        $str .= $log->string . "\n";
+    }
+    return $str;
 }
 
 package Log;
@@ -81,5 +108,3 @@ sub spliter {
     my ($self, $sp) = @_;
     $self->{SPLITER} = $sp;
 }
-
-1;
