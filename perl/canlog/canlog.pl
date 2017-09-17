@@ -13,15 +13,21 @@ $kingpin->parse;
 
 my $canlog = CanLog->new;
 $canlog->parse($filename);
-print $canlog->string, "\n";
+print $canlog->string . "\n";
+
 $canlog->stringer(sub{
     my ($obj, $sp) = @_;
-    my $str .= sprintf "%f%s%d%s%03X%s%s%s%X", $obj->{TIME} / 1000000, $sp, $obj->{CH},
-        $sp, $obj->{ID}, $sp, $obj->{DIR} eq Log->RX ? "Rx" : "Tx", $sp, $obj->{DLC};
+    my $str .= sprintf "%f%s%03X", $obj->{TIME} / 1000000, $sp, $obj->{ID};
     $str .= sprintf "%s%02X", $sp, $_ foreach @{$obj->{DATA}};
     return $str
 });
-print $canlog->string;
+print $canlog->string . "\n";
+
+my $timediff = $canlog->timediff;
+my $strings  = $canlog->strings;
+for (my $i = 0; $i< scalar(@$strings); $i++) {
+    printf "%f %s\n", @$timediff[$i] / 1000000, @$strings[$i];
+}
 
 package CanLog;
 
@@ -41,7 +47,6 @@ sub new {
 
 sub parse {
     my ($self, $filename) = @_;
-
     my $path = path($filename);
     foreach my $line ($path->lines) {
         chomp($line);
@@ -53,13 +58,33 @@ sub parse {
     }
 }
 
+sub timediff {
+    my $self = shift;
+    my @diff = ();
+    my $prev = 0000000;
+    foreach my $log (values($self->{LOGS})) {
+        push @diff, $log->{TIME} - $prev;
+        $prev = $log->{TIME};
+    }
+    return \@diff;
+}
+
+sub strings {
+    my $self = shift;
+    my @strings = ();
+    foreach my $log (values($self->{LOGS})) {
+        push @strings, $log->string($self->{STRINGER}, $self->{SPLITER});
+    }
+    return \@strings;
+}
+
 sub string {
     my $self = shift;
-    my $str = "";
+    my $string = "";
     foreach my $log (values($self->{LOGS})) {
-        $str .= $log->string($self->{STRINGER}, $self->{SPLITER}) . "\n";
+        $string .= $log->string($self->{STRINGER}, $self->{SPLITER}) . "\n";
     }
-    return $str;
+    return $string;
 }
 
 sub string_simple {
