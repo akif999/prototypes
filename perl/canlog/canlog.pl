@@ -28,6 +28,10 @@ my $strings  = $canlog->strings;
 for (my $i = 0; $i< scalar(@$strings); $i++) {
     printf "%f %s\n", @$timediff[$i] / 1000000, @$strings[$i];
 }
+print "\n";
+
+my $canlog_alt = $canlog->grep("DLC", qr/8/);
+print $canlog_alt->string;
 
 package CanLog;
 
@@ -67,6 +71,13 @@ sub timediff {
         $prev = $log->{TIME};
     }
     return \@diff;
+}
+
+sub grep {
+    my ($self, $key, $regex) = @_;
+    my $newobj = CanLog->new();
+    @{$newobj->{LOGS}} = grep { $_->{$key} =~ /$regex/} @{$self->{LOGS}};
+    return $newobj;
 }
 
 sub strings {
