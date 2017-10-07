@@ -1,0 +1,8 @@
+{"compile":[
+],
+"link":[
+"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/fizzbazz/nimcache/fizzbazz.o",
+"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/fizzbazz/nimcache/stdlib_system.o"
+],
+"linkcmd": "clang   -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/fizzbazz/fizzbazz  /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/fizzbazz/nimcache/fizzbazz.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/fizzbazz/nimcache/stdlib_system.o    -ldl"
+}
