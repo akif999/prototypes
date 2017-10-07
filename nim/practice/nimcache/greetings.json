@@ -1,8 +1,0 @@
-{"compile":[
-],
-"link":[
-"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/greetings.o",
-"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/stdlib_system.o"
-],
-"linkcmd": "clang   -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings  /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/greetings.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/stdlib_system.o    -ldl"
-}

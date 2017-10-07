@@ -1,0 +1,10 @@
+{"compile":[
+["/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.c", "clang -c  -w  -I/usr/local/Cellar/nim/0.17.2/nim/lib -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.c"],
+["/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/stdlib_system.c", "clang -c  -w  -I/usr/local/Cellar/nim/0.17.2/nim/lib -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/stdlib_system.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/stdlib_system.c"]
+],
+"link":[
+"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.o",
+"/Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/stdlib_system.o"
+],
+"linkcmd": "clang   -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/greetings  /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/stdlib_system.o    -ldl"
+}

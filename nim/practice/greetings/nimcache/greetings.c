@@ -3,7 +3,7 @@
 /* The generated code is subject to the original license. */
 /* Compiled for: MacOSX, amd64, clang */
 /* Command for C compiler:
-   clang -c  -w  -I/usr/local/Cellar/nim/0.17.2/nim/lib -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/greetings.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/nimcache/greetings.c */
+   clang -c  -w  -I/usr/local/Cellar/nim/0.17.2/nim/lib -o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.o /Users/KITABATAKEAKIFUMI/src/github.com/akif999/prototypes/nim/practice/greetings/nimcache/greetings.c */
 #define NIM_NEW_MANGLING_RULES
 #define NIM_INTBITS 64
 
