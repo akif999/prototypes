@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# check number of arguments
+if [ $# -ne 1 ]; then
+    echo "1 arguments required, but has $#"
+    exit 1
+fi
+
+# processing each line
 while read line
 do
     str=($line)
