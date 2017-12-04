@@ -14,8 +14,8 @@ import (
 type columnNumber int
 
 const (
-	FirstColumn  columnNumber = 3
-	SecondColumn columnNumber = 2
+	firstColumn  columnNumber = 3
+	secondColumn columnNumber = 2
 	thirdColumn  columnNumber = 1
 )
 
@@ -35,20 +35,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(values)
 
-	groups, err = groupByColumn(values, FirstColumn)
+	groups, err = groupByColumn(values, firstColumn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(groups)
 	values = sortByNumGroups(groups)
-	fmt.Println(values)
-	groups, err = groupByColumn(values, SecondColumn)
+	groups, err = groupByColumn(values, secondColumn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(groups)
 	values = sortByNumGroups(groups)
 	fmt.Println(values)
 }
@@ -59,7 +55,6 @@ func parse(input io.Reader) ([]int, error) {
 	for scanner.Scan() {
 		vs := strings.Split(scanner.Text(), ",")
 		for _, v := range vs {
-			fmt.Println(v)
 			s, err := strconv.ParseInt(v, 10, 32)
 			if err != nil {
 				return []int{}, err
@@ -73,10 +68,10 @@ func parse(input io.Reader) ([]int, error) {
 func groupByColumn(vals []int, col columnNumber) (map[int][]int, error) {
 	ret := map[int][]int{}
 	for _, v := range vals {
-		if col == FirstColumn {
+		if col == firstColumn {
 			c := ((v % 100) % 10)
 			ret[c] = append(ret[c], v)
-		} else if col == SecondColumn {
+		} else if col == secondColumn {
 			c := ((v % 100) / 10)
 			ret[c] = append(ret[c], v)
 		} else {
