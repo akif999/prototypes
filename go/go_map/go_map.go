@@ -35,16 +35,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// proc 1.
 	groups, err = groupByColumn(values, firstColumn)
 	if err != nil {
 		log.Fatal(err)
 	}
+	// proc 2.
 	values = sortByNumGroups(groups)
+	// 3.
 	groups, err = groupByColumn(values, secondColumn)
 	if err != nil {
 		log.Fatal(err)
 	}
+	// proc 4.
 	values = sortByNumGroups(groups)
 	fmt.Println(values)
 }
