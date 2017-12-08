@@ -42,7 +42,7 @@ func main() {
 	}
 	// proc 2.
 	values = sortByNumGroups(groups)
-	// 3.
+	// proc 3.
 	groups, err = groupByColumn(values, secondColumn)
 	if err != nil {
 		log.Fatal(err)
