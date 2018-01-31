@@ -6,19 +6,27 @@ import (
 )
 
 func main() {
-	for i := 0; i <= 100; i++ {
+	for i := 1; i <= 100; i++ {
 		fmt.Println(fizzbuzz(i))
 	}
 }
 
 func fizzbuzz(num int) string {
-	if num%15 == 0 {
-		return "fizzbuzz"
-	} else if num%3 == 0 {
-		return "fizz"
-	} else if num%5 == 0 {
-		return "buzz"
+	if isFizz(num) && isBuzz(num) {
+		return "Fizzbuzz"
+	} else if isFizz(num) {
+		return "Fizz"
+	} else if isBuzz(num) {
+		return "Buzz"
 	} else {
 		return strconv.Itoa(num)
 	}
+}
+
+func isFizz(num int) bool {
+	return num%3 == 0
+}
+
+func isBuzz(num int) bool {
+	return num%5 == 0
 }
