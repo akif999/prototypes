@@ -24,6 +24,7 @@ main = do
             usage
             exitSuccess
         else do
-            print head[args]
-            --fp <- openFile filename ReadMode
-            --get_and_print fp
+            --let fp = head[args]
+            fp <- openFile [args]!!1 ReadMode
+            get_and_print fp
+            exitSuccess
