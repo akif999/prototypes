@@ -1,9 +1,11 @@
 fizzBuzz :: Int -> String
-
-fizzBuzz n | n `mod` 15 == 0 = "FizzBuzz"
-           | n `mod`  3 == 0 = "Fizz"
-           | n `mod`  5 == 0 = "Buzz"
-           | otherwise       = show n
+fizzBuzz n | isFizz && isBuzz = "FizzBuzz"
+           | isFizz = "Fizz"
+           | isBuzz = "Buzz"
+           | otherwise = show n
+           where
+             isFizz = n `mod` 3 == 0
+             isBuzz = n `mod` 5 == 0
 
 main = do
-    print $ map fizzBuzz [1..100]
+     mapM_ putStrLn $ map fizzBuzz [1..100]
