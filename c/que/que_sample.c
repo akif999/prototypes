@@ -7,8 +7,9 @@
 typedef struct
 {
     unsigned short buf[BUFFER_SIZE];
-    unsigned short  *head;
-    unsigned short  *tail;
+    unsigned short len;
+    unsigned short *head;
+    unsigned short *tail;
 } ring_buffer;
 
 void init_ring_buffer(ring_buffer *r_buf);
@@ -22,12 +23,19 @@ int main (void)
     unsigned short tmp;
 
     init_ring_buffer(&r_buf);
+    dump_buffer(r_buf);
     enqueue(&r_buf, 0x1111);
     enqueue(&r_buf, 0x2222);
     enqueue(&r_buf, 0x3333);
     enqueue(&r_buf, 0x4444);
     enqueue(&r_buf, 0x5555);
     enqueue(&r_buf, 0x6666);
+    enqueue(&r_buf, 0x7777);
+    dump_buffer(r_buf);
+    while(dequeue(&r_buf, &tmp))
+    {
+        printf("deque  : %04X\n", tmp);
+    }
     enqueue(&r_buf, 0x7777);
     dump_buffer(r_buf);
     while(dequeue(&r_buf, &tmp))
@@ -44,6 +52,7 @@ void init_ring_buffer(ring_buffer *r_buf)
     {
         r_buf->buf[i] = 0x0000;
     }
+    r_buf->len = 0;
     r_buf->head = &r_buf->buf[0];
     r_buf->tail = &r_buf->buf[0];
 }
@@ -51,21 +60,21 @@ void init_ring_buffer(ring_buffer *r_buf)
 void enqueue(ring_buffer *r_buf, unsigned short elem)
 {
     *r_buf->tail = elem;
+    if (r_buf->len < BUFFER_SIZE)
+    {
+        r_buf->len++;
+    }
     if (r_buf->tail == &r_buf->buf[BUFFER_SIZE - 1])
     {
         r_buf->tail = &r_buf->buf[0];
-        if (r_buf->head == r_buf->tail)
-        {
-            r_buf->head++;
-        }
     }
     else
     {
-        r_buf->tail++;
-        if (r_buf->head == r_buf->tail)
+        if ((r_buf->len == BUFFER_SIZE) && (r_buf->head == r_buf->tail))
         {
             r_buf->head++;
         }
+        r_buf->tail++;
     }
 }
 
@@ -74,7 +83,7 @@ unsigned char dequeue(ring_buffer *r_buf, unsigned short *elem)
     unsigned short ret;
 
     ret = BUFFER_NOT_EMPTY;
-    if (r_buf->head == r_buf->tail)
+    if (r_buf->len == 0)
     {
         ret = BUFFER_EMPTY;
     }
@@ -82,6 +91,7 @@ unsigned char dequeue(ring_buffer *r_buf, unsigned short *elem)
     {
         *elem = *r_buf->head;
         *r_buf->head = 0x0000;
+        r_buf->len--;
         if (r_buf->head == &r_buf->buf[BUFFER_SIZE - 1])
         {
             r_buf->head = & r_buf->buf[0];
