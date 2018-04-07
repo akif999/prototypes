@@ -1,13 +1,19 @@
 use strict;
 use warnings;
 use utf8;
+use Storable qw/nfreeze nstore thaw retrieve/;
 use Spreadsheet::ParseXLSX;
 
 my $file = $ARGV[0];
-my @database = ();
+my $database = ();
 
-parse_personal_database(\@database, $file);
-print join("\n",  @database), "\n";
+if (-e 'cache.bin') {
+    $database = retrieve 'cache.bin';
+} else {
+    parse_personal_database(\@$database, $file);
+    nstore $database, 'cache.bin';
+}
+print join("\n",  @$database), "\n";
 
 sub parse_personal_database {
     my ($db, $file) = @_;
