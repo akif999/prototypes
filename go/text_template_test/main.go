@@ -5,16 +5,24 @@ import (
 	"os"
 )
 
-type Greeting struct {
-	Message string
+type TemplateSections struct {
+	Sec1 string
+	Sec2 string
+	Sec3 string
+	Sec4 string
 }
 
 func main() {
 	tmpl := template.Must(template.ParseFiles("test.tmpl"))
 
-	g := &Greeting{"Hello, World."}
+	ts := &TemplateSections{
+		"hoge",
+		"fuga",
+		"fuma",
+		"funa",
+	}
 
-	err := tmpl.Execute(os.Stdout, g)
+	err := tmpl.Execute(os.Stdout, ts)
 	if err != nil {
 		panic(err)
 	}
