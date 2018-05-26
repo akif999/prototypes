@@ -1,0 +1,8 @@
+category1:
+ - name: perl
+   type: script
+ - name: python
+   type: script
+category2:
+ - name: go
+   type: compile
