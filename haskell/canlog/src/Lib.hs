@@ -11,8 +11,6 @@ someFunc = do
     args <- getArgs
     handle <- openFile (args !! 0) ReadMode
     text <- hGetContents handle
-    let rows = lines text
-    mapM_ putStrLn rows
-    let words = map (!! 0) rows
-    putStrLn words
+    let tops =  map (!! 0) $ map words $ lines text
+    mapM_ putStrLn tops
     hClose handle
