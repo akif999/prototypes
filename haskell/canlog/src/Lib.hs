@@ -11,6 +11,12 @@ someFunc = do
     args <- getArgs
     handle <- openFile (args !! 0) ReadMode
     text <- hGetContents handle
-    let tops =  map (!! 0) $ map words $ lines text
-    mapM_ putStrLn tops
+    let heads =  extractFields $ extractRecords text
+    mapM_ putStrLn heads
     hClose handle
+
+extractRecords :: String -> [String]
+extractRecords rs = lines rs
+
+extractFields :: [String] -> [String]
+extractFields fs = map (!! 0) $ map words fs
