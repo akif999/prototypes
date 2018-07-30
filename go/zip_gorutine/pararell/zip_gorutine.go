@@ -5,10 +5,8 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -26,57 +24,39 @@ func main() {
 		return nil
 	})
 
-	err := gzipByFile(files)
-	if err != nil {
-		log.Fatal(err)
+	for _, f := range files {
+		wait.Add(1)
+		go gzipByFile(f)
 	}
+	wait.Wait()
 }
 
-func gzipByFile(files []string) error {
-	cpus := runtime.NumCPU()
-	s := make(chan uint, cpus)
-	f := make(chan string, len(files))
-	e := make(chan error, len(files))
-	for i := 0; i < len(files); i++ {
-		wait.Add(1)
-		go func() {
-			defer wait.Done()
-			s <- 1
-			file := <-f
-			b := new(bytes.Buffer)
-			w := gzip.NewWriter(b)
-			body, err := ioutil.ReadFile(file)
-			if err != nil {
-				e <- err
-			}
-			<-s
-			w.Write(body)
-			w.Close()
-
-			s := strings.Split(file, "/")
-			err = save(b, string(s[1]))
-			if err != nil {
-				e <- err
-			}
-			e <- nil
-			fmt.Println(file)
-		}()
+func gzipByFile(file string) error {
+	b := new(bytes.Buffer)
+	w := gzip.NewWriter(b)
+	body, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
 	}
-	go func() {
-		for _, file := range files {
-			f <- file
-		}
-	}()
-	wait.Wait()
+	w.Write(body)
+	w.Close()
+	// zip済みファイルを保存する
+	s := strings.Split(file, "/")
+	err = save(b, string(s[1]))
+	if err != nil {
+		return err
+	}
+	fmt.Println(file)
+	wait.Done()
 	return nil
 }
 
 func save(b *bytes.Buffer, filename string) error {
-	zf, err := os.Create("./output/" + filename + ".zip")
+	f, err := os.OpenFile("./output/"+filename+".zip", os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
-	zf.Write(b.Bytes())
-	zf.Close()
+	f.Write(b.Bytes())
+	f.Close()
 	return nil
 }
