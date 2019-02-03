@@ -5,12 +5,6 @@ import (
 	"strconv"
 )
 
-func main() {
-	for i := 1; i <= 100; i++ {
-		fmt.Println(fizzbuzz(i))
-	}
-}
-
 func fizzbuzz(num int) string {
 	if isFizz(num) && isBuzz(num) {
 		return "Fizzbuzz"
@@ -29,4 +23,10 @@ func isFizz(num int) bool {
 
 func isBuzz(num int) bool {
 	return num%5 == 0
+}
+
+func main() {
+	for i := 1; i <= 100; i++ {
+		fmt.Println(fizzbuzz(i))
+	}
 }
