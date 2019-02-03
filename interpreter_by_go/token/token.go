@@ -1,6 +1,6 @@
 package token
 
-type TokentType string
+type TokenType string
 
 type Token struct {
 	Type    TokenType
@@ -16,7 +16,7 @@ const (
 	INT   = "INT"   // 123456
 
 	// Operator
-	ASSIGN = "-"
+	ASSIGN = "="
 	PLUS   = "+"
 
 	// Delimiter
