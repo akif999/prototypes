@@ -1,7 +1,10 @@
 package lexer
 
-import "testing"
-import "github.com/akif999/prototypes/go/interpreter_in_go/token"
+import (
+	"testing"
+
+	"github.com/akif999/prototypes/go/interpreter_in_go/token"
+)
 
 func TestNextToken(t *testing.T) {
 	input := `=+(){},;`
