@@ -26,5 +26,5 @@ func main() {
 			}
 		},
 	)
-	http.ListenAndServe(":18888", nil)
+	log.Println(http.ListenAndServe(":18888", nil))
 }
