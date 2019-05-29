@@ -42,13 +42,13 @@ let foobar = 838383;
 }
 
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
-	if s.TokenLiteral() != "Let" {
+	if s.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got=%q", s.TokenLiteral())
 		return false
 	}
 
 	letStmt, ok := s.(*ast.LetStatement)
-	if !!ok {
+	if !ok {
 		t.Errorf("s not *ast.LetStatement. got=%T", s)
 		return false
 	}
