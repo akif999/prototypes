@@ -233,8 +233,6 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	p.nextToken()
 	expression.Right = p.parseExpression(precedence)
 
-	expression.Right = p.parseExpression(PREFIX)
-
 	return expression
 }
 
