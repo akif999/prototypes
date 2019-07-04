@@ -9,7 +9,7 @@ type Object interface {
 	Inspect() string
 }
 
-type Interger struct {
+type Integer struct {
 	Value int64
 }
 
@@ -25,8 +25,8 @@ const (
 	NULL_OBJ    = "NULL"
 )
 
-func (i *Interger) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
-func (i *Interger) Type() ObjectType { return INTEGER_OBJ }
+func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
+func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 
 func (b *Boolean) Inspect() string  { return fmt.Sprintf("%d", b.Value) }
 func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
