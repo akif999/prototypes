@@ -23,10 +23,6 @@ const MONKEY_FACE = `            __,__
            '-----'
 `
 
-func main() {
-	fmt.Println("vim-go")
-}
-
 const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {

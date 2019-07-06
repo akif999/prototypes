@@ -28,7 +28,7 @@ const (
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 
-func (b *Boolean) Inspect() string  { return fmt.Sprintf("%d", b.Value) }
+func (b *Boolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
 func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
 
 func (n *Null) Inspect() string  { return "null" }
