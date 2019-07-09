@@ -10,6 +10,8 @@ import (
 
 type ObjectType string
 
+type BuiltinFunction func(args ...Object) Object
+
 type Object interface {
 	Type() ObjectType
 	Inspect() string
@@ -43,6 +45,10 @@ type Error struct {
 	Message string
 }
 
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
 const (
 	INTEGER_OBJ      = "INTEGER"
 	STRING_OBJ       = "STRING"
@@ -51,6 +57,7 @@ const (
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	FUNCTION_OBJ     = "FUNCTION"
 	ERROR_OBJ        = "ERROR"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
@@ -89,3 +96,6 @@ func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
 
 func (e *Error) Inspect() string  { return "ERROR:" + e.Message }
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
+
+func (b *Builtin) Inspect() string  { return "builtin function" }
+func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
