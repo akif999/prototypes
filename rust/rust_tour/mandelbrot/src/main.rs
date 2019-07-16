@@ -37,7 +37,7 @@ fn main() {
     // render(&mut pixels, bounds, upper_left, lower_right);
 
     // pararell
-    let threads = 4;
+    let threads = 8;
     let rows_per_band = bounds.1 / threads + 1;
 
     {
