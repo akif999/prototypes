@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 fn main() {
     let big_val = std::i32::MAX;
     // let x = big_val + 1; // panic by overflow
@@ -32,11 +34,41 @@ fn main() {
     va.push(3);
     println!("va cap: {}", va.capacity());
     println!("va[2] :{}", va[2]);
+    println!();
 
     // v(vector) to slice
     print(&arr);
+    print(&arr[0..2]);
     // arr(array) to slice
     print(&v);
+    print(&v[..2]);
+
+    struct Person { name: Option<String>, birth: i32 }
+
+    let mut composers = Vec::new();
+    composers.push(Person { name: Some("Palestrina".to_string()),
+                            birth: 1525});
+    println!("{:?}", composers[0].name);
+    // let first_name = composers[0].name // ownership error
+    // let first_name = std::mem::replace(&mut composers[0].name, None);
+    let first_name = composers[0].name.take();
+    println!("{:?}", composers[0].name);
+    println!("{:?}", first_name);
+
+    #[derive(Copy, Clone)]  // define as Copy type
+    struct Label { number: u32 }
+    fn printl(l: Label) { println!("STAMP: {}", l.number); }
+    let l = Label { number: 3 };
+    printl(l);
+    println!("My label number is: {}", l.number);
+
+    // jointing ownership by 'Rc' type
+    let s: Rc<String> = Rc::new("shirataki".to_string());
+    let t: Rc<String> = s.clone();
+    let u: Rc<String> = s.clone();
+    println!("{}", s);
+    println!("{}", t);
+    println!("{:?}", u);
 }
 
 /// iterator for slice
