@@ -1,5 +1,5 @@
-use std::rc::Rc;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 type Table = HashMap<String, Vec<String>>;
 
@@ -51,11 +51,16 @@ fn main() {
     }
 
     {
-        struct Person { name: Option<String>, birth: i32 }
+        struct Person {
+            name: Option<String>,
+            birth: i32,
+        }
 
         let mut composers = Vec::new();
-        composers.push(Person { name: Some("Palestrina".to_string()),
-                                birth: 1525});
+        composers.push(Person {
+            name: Some("Palestrina".to_string()),
+            birth: 1525,
+        });
         println!("{:?}", composers[0].name);
         // let first_name = composers[0].name // ownership error
         // let first_name = std::mem::replace(&mut composers[0].name, None);
@@ -65,9 +70,13 @@ fn main() {
     }
 
     {
-        #[derive(Copy, Clone)]  // define as Copy type
-        struct Label { number: u32 }
-        fn printl(l: Label) { println!("STAMP: {}", l.number); }
+        #[derive(Copy, Clone)] // define as Copy type
+        struct Label {
+            number: u32,
+        }
+        fn printl(l: Label) {
+            println!("STAMP: {}", l.number);
+        }
         let l = Label { number: 3 };
         printl(l);
         println!("My label number is: {}", l.number);
@@ -84,15 +93,27 @@ fn main() {
         println!();
 
         let mut table = Table::new();
-        table.insert("Gesualdo".to_string(),
-                     vec!["many madrigals".to_string(),
-                          "Tenebrae Responsoria".to_string()]);
-        table.insert("Caravaggio".to_string(),
-                     vec!["The Musicians".to_string(),
-                          "The Calling of St. Matthew".to_string()]);
-        table.insert("Cellini".to_string(),
-                     vec!["Perseus with the head of Medusa".to_string(),
-                          "a salt cellar".to_string()]);
+        table.insert(
+            "Gesualdo".to_string(),
+            vec![
+                "many madrigals".to_string(),
+                "Tenebrae Responsoria".to_string(),
+            ],
+        );
+        table.insert(
+            "Caravaggio".to_string(),
+            vec![
+                "The Musicians".to_string(),
+                "The Calling of St. Matthew".to_string(),
+            ],
+        );
+        table.insert(
+            "Cellini".to_string(),
+            vec![
+                "Perseus with the head of Medusa".to_string(),
+                "a salt cellar".to_string(),
+            ],
+        );
         show(&table);
         println!();
     }
@@ -140,7 +161,7 @@ fn main() {
         {
             let y = 20;
             {
-                let s = S { x: &x, y: &y};
+                let s = S { x: &x, y: &y };
                 r = s.x;
             }
         }
@@ -223,18 +244,18 @@ fn quicksort<T: Ord>(slice: &mut [T]) {
         return;
     }
     let pivot_index = partition(slice);
-    quicksort(&mut slice[.. pivot_index]);
-    quicksort(&mut slice[pivot_index + 1 ..]);
+    quicksort(&mut slice[..pivot_index]);
+    quicksort(&mut slice[pivot_index + 1..]);
 }
 
 fn partition<T: Ord>(slice: &[T]) -> usize {
     // println!("fn partition -> slice.len(): {}", slice.len());
-    return slice.len() / 2
+    return slice.len() / 2;
 }
 
 #[test]
 fn test_partition() {
-    let mut t1 = vec![1,];
+    let mut t1 = vec![1];
     let mut t2 = vec![1, 2];
     let mut t3 = vec![1, 2, 3];
     let mut t4 = vec![1, 2, 3, 4];
