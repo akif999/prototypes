@@ -1,8 +1,5 @@
 fn main() {
-    let mut q = Queue {
-        older: Vec::new(),
-        younger: Vec::new(),
-    };
+    let mut q = Queue::new();
 
     q.push('0');
     q.push('1');
@@ -13,16 +10,22 @@ fn main() {
     assert_eq!(q.pop(), None);
 }
 
-pub struct Queue {
-    older: Vec<char>,
-    younger: Vec<char>,
+pub struct Queue<T> {
+    older: Vec<T>,
+    younger: Vec<T>,
 }
 
-impl Queue {
-    pub fn push(&mut self, c: char) {
-        self.younger.push(c)
+impl<T> Queue<T> {
+    pub fn new() -> Queue<T> {
+        Queue {
+            older: Vec::new(),
+            younger: Vec::new(),
+        }
     }
-    pub fn pop(&mut self) -> Option<char> {
+    pub fn push(&mut self, t: T) {
+        self.younger.push(t)
+    }
+    pub fn pop(&mut self) -> Option<T> {
         if self.older.is_empty() {
             if self.younger.is_empty() {
                 return None;
