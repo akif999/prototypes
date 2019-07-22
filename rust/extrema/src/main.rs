@@ -1,3 +1,4 @@
+#[derive(Copy, Clone, Debug, PartialEq)]
 struct Extrema<'elt> {
     greatest: &'elt i32,
     least: &'elt i32,
@@ -8,6 +9,7 @@ fn main() {
     let e = find_extrema(&a);
     assert_eq!(*e.least, -3);
     assert_eq!(*e.greatest, 48);
+    println!("extrema: {:?}", e)
 }
 
 fn find_extrema<'s>(slice: &'s [i32]) -> Extrema<'s> {

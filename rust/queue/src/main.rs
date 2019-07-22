@@ -1,4 +1,5 @@
 fn main() {
+    // let mut q = Queue::<char>::new();
     let mut q = Queue::new();
 
     q.push('0');
