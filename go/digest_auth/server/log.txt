@@ -1,0 +1,81 @@
+1a1dc91c907325c69271ddf0c944bc72
+
+C:\Users\aki01\go\src\github.com\akif999\prototypes\go\digest_auth\client>
+* Rebuilt URL to: http://localhost:8080/
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 8080 (#0)
+* Server auth using Digest with user 'user'
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+>
+< HTTP/1.1 401 Unauthorized
+< Content-Type: text/plain
+< Www-Authenticate: Digest realm="localhost", nonce="6G/Xv9zoVoi7DOV3", opaque="XdEDi2uwLc+HrHj9", algorithm=MD5, qop="auth"
+< Date: Tue, 23 Jul 2019 05:55:49 GMT
+< Content-Length: 17
+<
+* Ignoring the response-body
+* Connection #0 to host localhost left intact
+* Issue another request to this URL: 'http://localhost:8080/'
+* Found bundle for host localhost: 0x2a93c80 [can pipeline]
+* Re-using existing connection! (#0) with host localhost
+* Connected to localhost (::1) port 8080 (#0)
+* Server auth using Digest with user 'user'
+> GET / HTTP/1.1
+> Host: localhost:8080
+> Authorization: Digest username="user",realm="localhost",nonce="6G/Xv9zoVoi7DOV3",uri="/",cnonce="4783abcd5951bc31471c312adaf8ade9"
+,nc=00000001,algorithm=MD5,response="e6ac22e89cae2ba53a1f592735adf27f",qop="auth",opaque="XdEDi2uwLc+HrHj9"
+> User-Agent: curl/7.55.1
+> Accept: */*
+>
+< HTTP/1.1 401 Unauthorized
+< Content-Type: text/plain
+* Authentication problem. Ignoring this.
+< Www-Authenticate: Digest realm="localhost", nonce="7S+AxEz3xiWvLGdD", opaque="XdEDi2uwLc+HrHj9", algorithm=MD5, qop="auth"
+< Date: Tue, 23 Jul 2019 05:55:49 GMT
+< Content-Length: 17
+<
+401 Unauthorized
+* Connection #0 to host localhost left intact
+
+C:\Users\aki01\go\src\github.com\akif999\prototypes\go\digest_auth\client>curl --digest -u user:pass http://localhost:8080 -v
+* Rebuilt URL to: http://localhost:8080/
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 8080 (#0)
+* Server auth using Digest with user 'user'
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+>
+< HTTP/1.1 401 Unauthorized
+< Www-Authenticate: Digest realm="Secret Zone", nonce="TgLc25U2BQA=f510a2780473e18e6587be702ce67fe2b04afd", algorithm=MD5, qop="auth"
+< Date: Tue, 23 Jul 2019 06:33:34 GMT
+< Content-Length: 0
+<
+* Connection #0 to host localhost left intact
+* Issue another request to this URL: 'http://localhost:8080/'
+* Found bundle for host localhost: 0x2cb3d20 [can pipeline]
+* Re-using existing connection! (#0) with host localhost
+* Connected to localhost (::1) port 8080 (#0)
+* Server auth using Digest with user 'user'
+> GET / HTTP/1.1
+> Host: localhost:8080
+> Authorization: Digest username="user",realm="Secret Zone",nonce="TgLc25U2BQA=f510a2780473e18e6587be702ce67fe2b04afd",uri="/",cnonce="1
+9c6a9610f18a171ad2ac64bece87f48",nc=00000001,algorithm=MD5,response="f8df2d8f0443bf0c0b812028bc2516b3",qop="auth"
+> User-Agent: curl/7.55.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Tue, 23 Jul 2019 06:33:34 GMT
+< Content-Length: 38
+< Content-Type: text/html; charset=utf-8
+<
+<html><body>secret page</body></html>
+* Connection #0 to host localhost left intact
+
+C:\Users\aki01\go\src\github.com\akif999\prototypes\go\digest_auth\client>
