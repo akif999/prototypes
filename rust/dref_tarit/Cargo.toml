@@ -1,0 +1,9 @@
+[package]
+name = "dref_tarit"
+version = "0.1.0"
+authors = ["akif999 <aki01nf28@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
