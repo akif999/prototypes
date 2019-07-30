@@ -15,7 +15,7 @@
 #define INVALID_DATA_LENGTH  (0xFF)
 #define INVALID_DATA_ADDRESS (0xFFFFFFFF)
 
-typedef enum record_type {
+typedef enum s_record_type {
     S1 = 1,
     S2,
     S3,
@@ -24,26 +24,27 @@ typedef enum record_type {
     S6,
     S7,
     S8,
-    S9
-} rec_type;
+    S9,
+    INVALID_TYPE
+} srec_type;
 
-typedef struct record {
-    rec_type                              r_type;
+typedef struct s_record {
+    srec_type                             type;
     unsigned long                         length;
     unsigned long                         address;
     unsigned char                         data[MAX_RECORD_BINARY_SIZE];
     unsigned char                         checksum;
-} rec;
+} srec;
 
-typedef struct records {
-    rec           records[MAX_RECORD_LINE_NUM];
+typedef struct s_records {
+    srec          records[MAX_RECORD_LINE_NUM];
     unsigned long binary_size;
-} recs;
+} srecs;
 
 int cut_datafield(char*,char*, int);
-int notify_srectype(char*);
+srec_type get_srec_type(char *line);
 int notify_totallength(char*);
-long notify_dataaddr(char*, int);
+long notify_dataaddr(char*, srec_type);
 int calc_datalength(int, int);
 void charactor_to_binary(char*, unsigned char*, int);
 void write_srec_bin_obj(unsigned char*, unsigned char*, long, int);
@@ -54,15 +55,14 @@ void clear_buffer();
 
 int main (int argc, char **argv) {
     FILE *fp_src, *fp_dst;
-    char original_line[MAX_RECORD_SIZE];
+    srecs srecords;
+    char record_line[MAX_RECORD_SIZE];
     char proccessed_line[MAX_RECORD_SIZE];
     unsigned char binary_line[MAX_RECORD_BINARY_SIZE];
     unsigned char srec_bin_obj[MAX_OUTPUT_BINARY_SIZE];
-    int srec_type;
+    // int srec_type;
     int datasize_by_line;
     long dataaddr_by_line;
-
-    init_srec_bin_obj(srec_bin_obj, (int)sizeof(srec_bin_obj));
 
     if (argc < 2) {
         printf("Error: program needs argument of <filename>\n");
@@ -80,17 +80,23 @@ int main (int argc, char **argv) {
         return EXITCODE_FAILED;
     }
 
-    while(fgets(original_line, MAX_RECORD_SIZE, fp_src) != NULL) {
-        srec_type = notify_srectype(original_line);
-        if (srec_type == 1) {
-            dataaddr_by_line = notify_dataaddr(original_line, srec_type);
-            datasize_by_line = cut_datafield(original_line, proccessed_line, srec_type);
+    init_srec_bin_obj(srec_bin_obj, (int)sizeof(srec_bin_obj));
+
+    while(fgets(record_line, MAX_RECORD_SIZE, fp_src) != NULL) {
+        srec srecord;
+
+        srecord.type = get_srec_type(record_line);
+        if (srecord.type == S1) {
+            dataaddr_by_line = notify_dataaddr(record_line, srecord.type);
+            datasize_by_line = cut_datafield(record_line, proccessed_line, srecord.type);
 
             charactor_to_binary(proccessed_line, binary_line, datasize_by_line);
             write_srec_bin_obj(srec_bin_obj, binary_line, dataaddr_by_line, datasize_by_line);
 
-            clear_buffer(original_line);
+            clear_buffer(record_line);
             clear_buffer(proccessed_line);
+        } else {
+            printf("Warning: skiped parsing line: %s", record_line);
         }
     }
     fwrite(srec_bin_obj, sizeof(unsigned char), MAX_OUTPUT_BINARY_SIZE, fp_dst);
@@ -114,10 +120,14 @@ int cut_datafield(char* original_line, char* proccessed_line, int type) {
     return convert_clen_to_blen(length);
 }
 
-int notify_srectype(char* original_line) {
-    int type;
+srec_type get_srec_type(char *line) {
+    srec_type type;
 
-    type = (int)original_line[1] - 48;
+    if (line[0] == 'S') {
+        type = (srec_type)line[1] - 48;
+    } else {
+        type = INVALID_TYPE;
+    }
 
     return type;
 }
@@ -132,7 +142,7 @@ int notify_totallength(char* original_line) {
     return length;
 }
 
-long notify_dataaddr(char* original_line, int type) {
+long notify_dataaddr(char* original_line, srec_type type) {
     long dataaddr;
     char tmp_addr_str[256];
 
