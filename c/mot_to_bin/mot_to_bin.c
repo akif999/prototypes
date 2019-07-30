@@ -10,7 +10,10 @@
 #define MAX_RECORD_BINARY_SIZE (128)
 #define MAX_OUTPUT_BINARY_SIZE (2048)
 
-#define SREC_INTIALIZE_BYTE (0xFF)
+#define LENGTH_FIELD_BYTE_SIZE     (1)
+#define S1_ADDRESS_FIELD_BYTE_SIZE (2)
+
+#define SREC_INITIALIZE_BYTE (0xFF)
 
 #define INVALID_DATA_LENGTH  (0xFF)
 #define INVALID_DATA_ADDRESS (0xFFFFFFFF)
@@ -38,30 +41,26 @@ typedef struct s_record {
 
 typedef struct s_records {
     srec          records[MAX_RECORD_LINE_NUM];
-    unsigned long binary_size;
+    unsigned long number_of_data_records;
 } srecs;
 
-int cut_datafield(char*,char*, int);
+unsigned long get_data(srec *rec, char *line);
 srec_type get_srec_type(char *line);
-unsigned long get_length(char* line);
-long notify_dataaddr(char*, srec_type);
-int calc_datalength(int, int);
-void charactor_to_binary(char*, unsigned char*, int);
-void write_srec_bin_obj(unsigned char*, unsigned char*, long, int);
-void init_srec_bin_obj(unsigned char*, int);
-int convert_blen_to_clen(int);
-int convert_clen_to_blen(int);
-void clear_buffer();
+unsigned long get_length(char *line);
+unsigned long get_address(char *line, srec_type);
+unsigned long get_datalength(unsigned long length, srec_type type);
+void string_to_bytes(char *str, unsigned char *bytes, unsigned long str_len);
+void make_binary_file(srecs recs, FILE *fp);
+void filling_bytes(unsigned char *obj, unsigned long size, unsigned char filler);
+unsigned long get_record_binary_size(srecs recs);
+unsigned long get_characterlength(unsigned long byte_length);
+void dump_bytes(unsigned char *bytes, unsigned long size);
 
 int main (int argc, char **argv) {
     FILE *fp_src, *fp_dst;
     srecs srecords;
     char record_line[MAX_RECORD_SIZE];
-    char proccessed_line[MAX_RECORD_SIZE];
-    unsigned char binary_line[MAX_RECORD_BINARY_SIZE];
-    unsigned char srec_bin_obj[MAX_OUTPUT_BINARY_SIZE];
-    int datasize_by_line;
-    long dataaddr_by_line;
+    int rec_idx;
 
     if (argc < 2) {
         printf("Error: program needs argument of <filename>\n");
@@ -73,33 +72,31 @@ int main (int argc, char **argv) {
         printf("Error: src file open error\n");
         return EXITCODE_FAILED;
     }
-    fp_dst = fopen("output.bin", "wb");
-    if (fp_dst == NULL) {
-        printf("Error: dst file open error\n");
-        return EXITCODE_FAILED;
-    }
 
-    init_srec_bin_obj(srec_bin_obj, (int)sizeof(srec_bin_obj));
-
+    rec_idx = 0;
     while(fgets(record_line, MAX_RECORD_SIZE, fp_src) != NULL) {
         srec srecord;
 
         srecord.type = get_srec_type(record_line);
         if (srecord.type == S1) {
             srecord.length   = get_length(record_line);
-            dataaddr_by_line = notify_dataaddr(record_line, srecord.type);
-            datasize_by_line = cut_datafield(record_line, proccessed_line, srecord.type);
+            srecord.address  = get_address(record_line, srecord.type);
+            get_data(&srecord, record_line);
 
-            charactor_to_binary(proccessed_line, binary_line, datasize_by_line);
-            write_srec_bin_obj(srec_bin_obj, binary_line, dataaddr_by_line, datasize_by_line);
-
-            clear_buffer(record_line);
-            clear_buffer(proccessed_line);
+            srecords.records[rec_idx] = srecord;
+            rec_idx++;
         } else {
-            printf("Warning: skiped parsing line: %s", record_line);
+            printf("Warning: skiped parsing line (not S1 record): %s", record_line);
         }
     }
-    fwrite(srec_bin_obj, sizeof(unsigned char), MAX_OUTPUT_BINARY_SIZE, fp_dst);
+    srecords.number_of_data_records = rec_idx;
+
+    fp_dst = fopen("output.bin", "wb");
+    if (fp_dst == NULL) {
+        printf("Error: dst file open error\n");
+        return EXITCODE_FAILED;
+    }
+    make_binary_file(srecords, fp_dst);
 
     fclose(fp_src);
     fclose(fp_dst);
@@ -107,17 +104,24 @@ int main (int argc, char **argv) {
     return EXITCODE_SUCCESS;
 }
 
-int cut_datafield(char* original_line, char* proccessed_line, int type) {
-    int length;
+unsigned long get_data(srec *rec, char *line) {
+    char          str[MAX_RECORD_SIZE];
+    unsigned long  byte_datalen;
 
-    length = get_length(original_line);
-    length = convert_blen_to_clen(length);
-    length = calc_datalength(length, type);
+    byte_datalen = get_datalength(rec->length, rec->type);
 
-    strncpy(proccessed_line, original_line + 8, length);
-    strcat(proccessed_line, "\n");
+    if (rec->type == S1) {
+        strncpy(str,
+                line + 8,
+                get_characterlength(byte_datalen));
+        strcat(str, "\n");
+    } else {
+        // not supported S2, S3 type
+    }
 
-    return convert_clen_to_blen(length);
+    string_to_bytes(str, rec->data, get_characterlength(byte_datalen));
+
+    return byte_datalen;
 }
 
 srec_type get_srec_type(char *line) {
@@ -142,62 +146,87 @@ unsigned long get_length(char* line) {
     return len;
 }
 
-long notify_dataaddr(char* original_line, srec_type type) {
-    long dataaddr;
-    char tmp_addr_str[256];
+unsigned long get_address(char* line, srec_type type) {
+    unsigned long addr;
+    char tmp_addr_str[9];
 
-    if (type == 1) {
-        sprintf(tmp_addr_str, "%c%c%c%c",
-            original_line[4], original_line[5], original_line[6], original_line[7]);
-        dataaddr = (long)strtol(tmp_addr_str, 0, 16);
+    if (type == S1) {
+        sprintf(tmp_addr_str, "%c%c%c%c", line[4], line[5], line[6], line[7]);
+        addr = (unsigned long)strtol(tmp_addr_str, 0, 16);
     } else {
-        dataaddr = INVALID_DATA_ADDRESS;
+        addr = INVALID_DATA_ADDRESS;
     }
-    return dataaddr;
+
+    return addr;
 }
 
-int calc_datalength(int total_length, int type) {
-    if (type == 1) {
-        return total_length - 6;
-    } else if (type == 2) {
+unsigned long get_datalength(unsigned long length, srec_type type) {
+    if (type == S1) {
+        return length - (LENGTH_FIELD_BYTE_SIZE + S1_ADDRESS_FIELD_BYTE_SIZE);
+    } else if (type == S2) {
         return INVALID_DATA_LENGTH;
-    } else if (type == 3) {
+    } else if (type == S3) {
         return INVALID_DATA_LENGTH;
     } else {
         return INVALID_DATA_LENGTH;
     }
 }
 
-void charactor_to_binary(char* src, unsigned char* dst, int size) {
+void string_to_bytes(char *str, unsigned char *bytes, unsigned long str_len) {
     char tmp_chrs[3];
     int i;
 
-    for (i = 0; i < convert_blen_to_clen(size); i += 2) {
-        sprintf(tmp_chrs, "%c%c", src[i], src[i + 1]);
-        dst[i / 2] = (unsigned char)strtol(tmp_chrs, 0, 16);
+    for (i = 0; i < str_len; i += 2) {
+        sprintf(tmp_chrs, "%c%c", str[i], str[i + 1]);
+        bytes[i / 2] = (unsigned char)strtol(tmp_chrs, 0, 16);
     }
 }
 
-void write_srec_bin_obj(unsigned char* obj, unsigned char* line, long addr, int size) {
-    memcpy(obj + addr, line, size);
+void make_binary_file(srecs recs, FILE *fp) {
+    unsigned char bytes[MAX_OUTPUT_BINARY_SIZE];
+    int i;
+
+    filling_bytes(bytes, MAX_OUTPUT_BINARY_SIZE, SREC_INITIALIZE_BYTE);
+
+    for (i = 0; i < recs.number_of_data_records; i++) {
+        memcpy(bytes + recs.records[i].address, recs.records[i].data,
+               get_datalength(recs.records[i].length, recs.records[i].type));
+    }
+    fwrite(bytes, sizeof(unsigned char), get_record_binary_size(recs), fp);
 }
 
-void init_srec_bin_obj(unsigned char* obj, int size) {
+void filling_bytes(unsigned char *obj, unsigned long size, unsigned char filler) {
     int i;
 
     for (i = 0; i < size; i++) {
-        obj[i] = SREC_INTIALIZE_BYTE;
+        obj[i] = filler;
     }
 }
 
-int convert_clen_to_blen(int length) {
-    return length / 2;
+unsigned long get_record_binary_size(srecs recs) {
+    unsigned long start;
+    unsigned long end;
+    unsigned long end_record_datasize;
+
+    start               = recs.records[0].address;
+    end                 = recs.records[recs.number_of_data_records -1].address;
+    end_record_datasize = get_datalength(recs.records[recs.number_of_data_records -1].length,
+                          recs.records[recs.number_of_data_records -1].type);
+    return (end - start) + end_record_datasize;
 }
 
-int convert_blen_to_clen(int length) {
-    return length * 2;
+unsigned long get_characterlength(unsigned long byte_length) {
+    return byte_length * 2;
 }
 
-void clear_buffer(char* buf) {
-    memset(buf, '\0', strlen(buf));
+void dump_bytes(unsigned char *bytes, unsigned long size) {
+    int i;
+
+    for (i = 0; i < size; i++) {
+        printf("%02X", bytes[i]);
+        // if (i % 16 == 0) {
+        //     printf("\n");
+        // }
+    }
+    printf("\n");
 }
