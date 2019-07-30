@@ -6,13 +6,39 @@
 #define EXITCODE_FAILED  (1)
 
 #define MAX_RECORD_SIZE        (256)
+#define MAX_RECORD_LINE_NUM    (512)
 #define MAX_RECORD_BINARY_SIZE (128)
-#define MAX_OUTPUT_BINARY_SIZE (512)
+#define MAX_OUTPUT_BINARY_SIZE (2048)
 
 #define SREC_INTIALIZE_BYTE (0xFF)
 
 #define INVALID_DATA_LENGTH  (0xFF)
 #define INVALID_DATA_ADDRESS (0xFFFFFFFF)
+
+typedef enum record_type {
+    S1 = 1,
+    S2,
+    S3,
+    S4,
+    S5,
+    S6,
+    S7,
+    S8,
+    S9
+} rec_type;
+
+typedef struct record {
+    rec_type                              r_type;
+    unsigned long                         length;
+    unsigned long                         address;
+    unsigned char                         data[MAX_RECORD_BINARY_SIZE];
+    unsigned char                         checksum;
+} rec;
+
+typedef struct records {
+    rec           records[MAX_RECORD_LINE_NUM];
+    unsigned long binary_size;
+} recs;
 
 int cut_datafield(char*,char*, int);
 int notify_srectype(char*);
@@ -26,7 +52,7 @@ int convert_blen_to_clen(int);
 int convert_clen_to_blen(int);
 void clear_buffer();
 
-int main (void) {
+int main (int argc, char **argv) {
     FILE *fp_src, *fp_dst;
     char original_line[MAX_RECORD_SIZE];
     char proccessed_line[MAX_RECORD_SIZE];
@@ -38,14 +64,19 @@ int main (void) {
 
     init_srec_bin_obj(srec_bin_obj, (int)sizeof(srec_bin_obj));
 
-    fp_src = fopen("srec_sample_s1_01.txt", "r");
+    if (argc < 2) {
+        printf("Error: program needs argument of <filename>\n");
+        return EXITCODE_FAILED;
+    }
+
+    fp_src = fopen(argv[1], "r");
     if (fp_src == NULL) {
-        printf("Error:src file open error\n");
+        printf("Error: src file open error\n");
         return EXITCODE_FAILED;
     }
     fp_dst = fopen("output.bin", "wb");
     if (fp_dst == NULL) {
-        printf("Error:dst file open error\n");
+        printf("Error: dst file open error\n");
         return EXITCODE_FAILED;
     }
 
