@@ -2,8 +2,17 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define PG_SECTION_SIZE 368
-#define BUF_SIZE        256
+#define EXITCODE_SUCCESS (0)
+#define EXITCODE_FAILED  (1)
+
+#define MAX_RECORD_SIZE        (256)
+#define MAX_RECORD_BINARY_SIZE (128)
+#define MAX_OUTPUT_BINARY_SIZE (512)
+
+#define SREC_INTIALIZE_BYTE (0xFF)
+
+#define INVALID_DATA_LENGTH  (0xFF)
+#define INVALID_DATA_ADDRESS (0xFFFFFFFF)
 
 int cut_datafield(char*,char*, int);
 int notify_srectype(char*);
@@ -19,28 +28,28 @@ void clear_buffer();
 
 int main (void) {
     FILE *fp_src, *fp_dst;
-    char original_line[BUF_SIZE];
-    char proccessed_line[BUF_SIZE];
-    unsigned char binary_line[BUF_SIZE];
-    unsigned char srec_bin_obj[PG_SECTION_SIZE];
+    char original_line[MAX_RECORD_SIZE];
+    char proccessed_line[MAX_RECORD_SIZE];
+    unsigned char binary_line[MAX_RECORD_BINARY_SIZE];
+    unsigned char srec_bin_obj[MAX_OUTPUT_BINARY_SIZE];
     int srec_type;
     int datasize_by_line;
     long dataaddr_by_line;
 
     init_srec_bin_obj(srec_bin_obj, (int)sizeof(srec_bin_obj));
 
-    fp_src = fopen("s1rec_sample", "r");
+    fp_src = fopen("srec_sample_s1_01.txt", "r");
     if (fp_src == NULL) {
         printf("Error:src file open error\n");
-        return 1;
+        return EXITCODE_FAILED;
     }
-    fp_dst = fopen("s1rec_sample.bin", "wb");
+    fp_dst = fopen("output.bin", "wb");
     if (fp_dst == NULL) {
         printf("Error:dst file open error\n");
-        return 1;
+        return EXITCODE_FAILED;
     }
 
-    while(fgets(original_line, 256, fp_src) != NULL) {
+    while(fgets(original_line, MAX_RECORD_SIZE, fp_src) != NULL) {
         srec_type = notify_srectype(original_line);
         if (srec_type == 1) {
             dataaddr_by_line = notify_dataaddr(original_line, srec_type);
@@ -53,12 +62,12 @@ int main (void) {
             clear_buffer(proccessed_line);
         }
     }
-    fwrite(srec_bin_obj, sizeof(unsigned char), PG_SECTION_SIZE, fp_dst);
+    fwrite(srec_bin_obj, sizeof(unsigned char), MAX_OUTPUT_BINARY_SIZE, fp_dst);
 
     fclose(fp_src);
     fclose(fp_dst);
 
-    return 0;
+    return EXITCODE_SUCCESS;
 }
 
 int cut_datafield(char* original_line, char* proccessed_line, int type) {
@@ -101,7 +110,7 @@ long notify_dataaddr(char* original_line, int type) {
             original_line[4], original_line[5], original_line[6], original_line[7]);
         dataaddr = (long)strtol(tmp_addr_str, 0, 16);
     } else {
-        dataaddr = 0xFFFFFFFF;
+        dataaddr = INVALID_DATA_ADDRESS;
     }
     return dataaddr;
 }
@@ -110,11 +119,11 @@ int calc_datalength(int total_length, int type) {
     if (type == 1) {
         return total_length - 6;
     } else if (type == 2) {
-        return 0xFF;
+        return INVALID_DATA_LENGTH;
     } else if (type == 3) {
-        return 0xFF;
+        return INVALID_DATA_LENGTH;
     } else {
-        return 0xFF;
+        return INVALID_DATA_LENGTH;
     }
 }
 
@@ -136,7 +145,7 @@ void init_srec_bin_obj(unsigned char* obj, int size) {
     int i;
 
     for (i = 0; i < size; i++) {
-        obj[i] = 0xFF;
+        obj[i] = SREC_INTIALIZE_BYTE;
     }
 }
 
