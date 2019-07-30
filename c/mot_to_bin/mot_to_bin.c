@@ -43,7 +43,7 @@ typedef struct s_records {
 
 int cut_datafield(char*,char*, int);
 srec_type get_srec_type(char *line);
-int notify_totallength(char*);
+unsigned long get_length(char* line);
 long notify_dataaddr(char*, srec_type);
 int calc_datalength(int, int);
 void charactor_to_binary(char*, unsigned char*, int);
@@ -60,7 +60,6 @@ int main (int argc, char **argv) {
     char proccessed_line[MAX_RECORD_SIZE];
     unsigned char binary_line[MAX_RECORD_BINARY_SIZE];
     unsigned char srec_bin_obj[MAX_OUTPUT_BINARY_SIZE];
-    // int srec_type;
     int datasize_by_line;
     long dataaddr_by_line;
 
@@ -87,6 +86,7 @@ int main (int argc, char **argv) {
 
         srecord.type = get_srec_type(record_line);
         if (srecord.type == S1) {
+            srecord.length   = get_length(record_line);
             dataaddr_by_line = notify_dataaddr(record_line, srecord.type);
             datasize_by_line = cut_datafield(record_line, proccessed_line, srecord.type);
 
@@ -110,7 +110,7 @@ int main (int argc, char **argv) {
 int cut_datafield(char* original_line, char* proccessed_line, int type) {
     int length;
 
-    length = notify_totallength(original_line);
+    length = get_length(original_line);
     length = convert_blen_to_clen(length);
     length = calc_datalength(length, type);
 
@@ -132,14 +132,14 @@ srec_type get_srec_type(char *line) {
     return type;
 }
 
-int notify_totallength(char* original_line) {
-    int length;
-    char tmp_len_str[256];
+unsigned long get_length(char* line) {
+    unsigned long len;
+    char len_str[3];
 
-    sprintf(tmp_len_str, "%c%c", original_line[2], original_line[3]);
-    length = (int)strtol(tmp_len_str, 0, 16);
+    sprintf(len_str, "%c%c", line[2], line[3]);
+    len = (unsigned long)strtol(len_str, 0, 16);
 
-    return length;
+    return len;
 }
 
 long notify_dataaddr(char* original_line, srec_type type) {
