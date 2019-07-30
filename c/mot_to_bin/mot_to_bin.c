@@ -44,10 +44,10 @@ typedef struct s_records {
     unsigned long number_of_data_records;
 } srecs;
 
-unsigned long get_data(srec *rec, char *line);
 srec_type get_srec_type(char *line);
 unsigned long get_length(char *line);
 unsigned long get_address(char *line, srec_type);
+unsigned long get_data(srec *rec, char *line);
 unsigned long get_datalength(unsigned long length, srec_type type);
 void string_to_bytes(char *str, unsigned char *bytes, unsigned long str_len);
 void make_binary_file(srecs recs, FILE *fp);
@@ -104,26 +104,6 @@ int main (int argc, char **argv) {
     return EXITCODE_SUCCESS;
 }
 
-unsigned long get_data(srec *rec, char *line) {
-    char          str[RECORD_MAXSIZE];
-    unsigned long  byte_datalen;
-
-    byte_datalen = get_datalength(rec->length, rec->type);
-
-    if (rec->type == S1) {
-        strncpy(str,
-                line + 8,
-                get_characterlength(byte_datalen));
-        strcat(str, "\n");
-    } else {
-        // not supported S2, S3 type
-    }
-
-    string_to_bytes(str, rec->data, get_characterlength(byte_datalen));
-
-    return byte_datalen;
-}
-
 srec_type get_srec_type(char *line) {
     srec_type type;
 
@@ -158,6 +138,24 @@ unsigned long get_address(char* line, srec_type type) {
     }
 
     return addr;
+}
+
+unsigned long get_data(srec *rec, char *line) {
+    char          str[RECORD_MAXSIZE];
+    unsigned long  byte_datalen;
+
+    byte_datalen = get_datalength(rec->length, rec->type);
+
+    if (rec->type == S1) {
+        strncpy(str, line + 8, get_characterlength(byte_datalen));
+        strcat(str, "\n");
+    } else {
+        // not supported S2, S3 type
+    }
+
+    string_to_bytes(str, rec->data, get_characterlength(byte_datalen));
+
+    return byte_datalen;
 }
 
 unsigned long get_datalength(unsigned long length, srec_type type) {
