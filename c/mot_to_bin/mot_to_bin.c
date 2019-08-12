@@ -5,10 +5,10 @@
 #define EXITCODE_SUCCESS (0)
 #define EXITCODE_FAILED  (1)
 
-#define MAX_RECORD_SIZE        (256)
-#define MAX_RECORD_LINE_NUM    (512)
-#define MAX_RECORD_BINARY_SIZE (128)
-#define MAX_OUTPUT_BINARY_SIZE (2048)
+#define RECORD_MAXSIZE        (256)
+#define RECORD_LINE_MAXNUM    (512)
+#define RECORD_BINARY_MAXSIZE (128)
+#define OUTPUT_BINARY_MAXSIZE (2048)
 
 #define LENGTH_FIELD_BYTE_SIZE     (1)
 #define S1_ADDRESS_FIELD_BYTE_SIZE (2)
@@ -32,22 +32,22 @@ typedef enum s_record_type {
 } srec_type;
 
 typedef struct s_record {
-    srec_type                             type;
-    unsigned long                         length;
-    unsigned long                         address;
-    unsigned char                         data[MAX_RECORD_BINARY_SIZE];
-    unsigned char                         checksum;
+    srec_type     type;
+    unsigned long length;
+    unsigned long address;
+    unsigned char data[RECORD_BINARY_MAXSIZE];
+    unsigned char checksum;
 } srec;
 
 typedef struct s_records {
-    srec          records[MAX_RECORD_LINE_NUM];
+    srec          records[RECORD_LINE_MAXNUM];
     unsigned long number_of_data_records;
 } srecs;
 
-unsigned long get_data(srec *rec, char *line);
 srec_type get_srec_type(char *line);
 unsigned long get_length(char *line);
 unsigned long get_address(char *line, srec_type);
+unsigned long get_data(srec *rec, char *line);
 unsigned long get_datalength(unsigned long length, srec_type type);
 void string_to_bytes(char *str, unsigned char *bytes, unsigned long str_len);
 void make_binary_file(srecs recs, FILE *fp);
@@ -59,7 +59,7 @@ void dump_bytes(unsigned char *bytes, unsigned long size);
 int main (int argc, char **argv) {
     FILE *fp_src, *fp_dst;
     srecs srecords;
-    char record_line[MAX_RECORD_SIZE];
+    char record_line[RECORD_MAXSIZE];
     int rec_idx;
 
     if (argc < 2) {
@@ -74,7 +74,7 @@ int main (int argc, char **argv) {
     }
 
     rec_idx = 0;
-    while(fgets(record_line, MAX_RECORD_SIZE, fp_src) != NULL) {
+    while(fgets(record_line, RECORD_MAXSIZE, fp_src) != NULL) {
         srec srecord;
 
         srecord.type = get_srec_type(record_line);
@@ -102,26 +102,6 @@ int main (int argc, char **argv) {
     fclose(fp_dst);
 
     return EXITCODE_SUCCESS;
-}
-
-unsigned long get_data(srec *rec, char *line) {
-    char          str[MAX_RECORD_SIZE];
-    unsigned long  byte_datalen;
-
-    byte_datalen = get_datalength(rec->length, rec->type);
-
-    if (rec->type == S1) {
-        strncpy(str,
-                line + 8,
-                get_characterlength(byte_datalen));
-        strcat(str, "\n");
-    } else {
-        // not supported S2, S3 type
-    }
-
-    string_to_bytes(str, rec->data, get_characterlength(byte_datalen));
-
-    return byte_datalen;
 }
 
 srec_type get_srec_type(char *line) {
@@ -160,6 +140,24 @@ unsigned long get_address(char* line, srec_type type) {
     return addr;
 }
 
+unsigned long get_data(srec *rec, char *line) {
+    char          str[RECORD_MAXSIZE];
+    unsigned long  byte_datalen;
+
+    byte_datalen = get_datalength(rec->length, rec->type);
+
+    if (rec->type == S1) {
+        strncpy(str, line + 8, get_characterlength(byte_datalen));
+        strcat(str, "\n");
+    } else {
+        // not supported S2, S3 type
+    }
+
+    string_to_bytes(str, rec->data, get_characterlength(byte_datalen));
+
+    return byte_datalen;
+}
+
 unsigned long get_datalength(unsigned long length, srec_type type) {
     if (type == S1) {
         return length - (LENGTH_FIELD_BYTE_SIZE + S1_ADDRESS_FIELD_BYTE_SIZE);
@@ -183,10 +181,10 @@ void string_to_bytes(char *str, unsigned char *bytes, unsigned long str_len) {
 }
 
 void make_binary_file(srecs recs, FILE *fp) {
-    unsigned char bytes[MAX_OUTPUT_BINARY_SIZE];
+    unsigned char bytes[OUTPUT_BINARY_MAXSIZE];
     int i;
 
-    filling_bytes(bytes, MAX_OUTPUT_BINARY_SIZE, SREC_INITIALIZE_BYTE);
+    filling_bytes(bytes, OUTPUT_BINARY_MAXSIZE, SREC_INITIALIZE_BYTE);
 
     for (i = 0; i < recs.number_of_data_records; i++) {
         memcpy(bytes + recs.records[i].address, recs.records[i].data,
@@ -224,9 +222,9 @@ void dump_bytes(unsigned char *bytes, unsigned long size) {
 
     for (i = 0; i < size; i++) {
         printf("%02X", bytes[i]);
-        // if (i % 16 == 0) {
-        //     printf("\n");
-        // }
+        if (i % 16 == 0) {
+            printf("\n");
+        }
     }
     printf("\n");
 }
