@@ -13,7 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Close()
+	defer f.Close()
 
 	b, _ := ioutil.ReadAll(f)
 	fmt.Println(string(b))
