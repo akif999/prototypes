@@ -4,6 +4,7 @@ use rand::random;
 use std::collections::HashMap;
 use std::ops::{Add, Mul};
 use std::rc::Rc;
+use std::str::FromStr;
 
 type Table = HashMap<String, Vec<String>>;
 
@@ -252,6 +253,26 @@ fn main() {
         // for element in &collection { ...} // shered reference
         // for element in &mut collection { ...} // mutable reference
         // for element in collection { ...} // get owenership and consume
+    }
+
+    {
+        let text = "  ponies  \n  giraffes\niguanas  \nsquid".to_string();
+        let v: Vec<&str> = text
+            .lines()
+            .map(str::trim)
+            .filter(|s| *s != "iguanas")
+            .collect();
+        assert_eq!(v, ["ponies", "giraffes", "squid"]);
+    }
+
+    {
+        let text = "1\nfrond .25 289\n3.1415 estuary\n";
+        for number in text
+            .split_whitespace()
+            .filter_map(|w| f64::from_str(w).ok())
+        {
+            println!("{:4.2}", number.sqrt());
+        }
     }
 }
 
