@@ -234,6 +234,25 @@ fn main() {
             cities.sort_by_key(|city| -city.population);
         }
     }
+
+    {
+        fn triangle(n: i32) -> i32 {
+            let mut sum = 0;
+            for i in 1..n + 1 {
+                sum += i;
+            }
+            sum
+        }
+        fn triangle_fold(n: i32) -> i32 {
+            (1..n + 1).fold(0, |sum, item| sum + item)
+        }
+        assert_eq!(triangle(5), 15);
+        assert_eq!(triangle(5), triangle_fold(5));
+
+        // for element in &collection { ...} // shered reference
+        // for element in &mut collection { ...} // mutable reference
+        // for element in collection { ...} // get owenership and consume
+    }
 }
 
 fn dot<N>(v1: &[N], v2: &[N]) -> N
