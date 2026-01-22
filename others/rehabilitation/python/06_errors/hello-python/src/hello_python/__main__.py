@@ -1,7 +1,8 @@
 import argparse
+import sys
 from pathlib import Path
 
-from hello_python.counter import count_names
+from hello_python.counter import count_names, InvalidCSVError
 
 
 def main() -> None:
@@ -19,7 +20,14 @@ def main() -> None:
     args = parser.parse_args()
     input_path = Path(args.input)
 
-    counts = count_names(input_path)
+    try:
+        counts = count_names(input_path)
+    except FileNotFoundError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
+    except InvalidCSVError as e:
+        print(f"Invalid CSV: {e}", file=sys.stderr)
+        sys.exit(2)
 
     for name, count in counts.items():
         print(f"{name}: {count}")
