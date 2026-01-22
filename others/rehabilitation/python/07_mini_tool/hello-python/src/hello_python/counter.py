@@ -17,10 +17,19 @@ def count_names(csv_path: Path) -> Counter:
         if "name" not in reader.fieldnames:
             raise InvalidCSVError("CSV must contain 'name' column")
 
-        names = []
-        for row in reader:
-            if not row["name"]:
-                continue
-            names.append(row["name"])
+        names = [row["name"] for row in reader if row["name"]]
 
     return Counter(names)
+
+
+def sort_counts(
+    counts: Counter,
+    *,
+    by: str,
+) -> list[tuple[str, int]]:
+    if by == "name":
+        return sorted(counts.items())
+    elif by == "count":
+        return sorted(counts.items(), key=lambda x: x[1], reverse=True)
+    else:
+        raise ValueError(f"Invalid sort key: {by}")
