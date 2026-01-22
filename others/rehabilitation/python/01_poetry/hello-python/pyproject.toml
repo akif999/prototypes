@@ -11,6 +11,7 @@ dependencies = [
 ]
 
 [tool.poetry]
+name = "hello-python"
 packages = [{include = "hello_python", from = "src"}]
 
 [build-system]
