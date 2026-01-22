@@ -2,11 +2,13 @@ import sys
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: hello-python <name>")
+    args = sys.argv[1:]
+
+    if len(args) != 2 or args[0] != "--name":
+        print("Usage: hello-python --name <name>")
         return
 
-    name = sys.argv[1]
+    name = args[1]
     print(f"Hello, {name}")
 
 
