@@ -1,10 +1,10 @@
 import argparse
-import csv
-from collections import Counter
 from pathlib import Path
 
+from hello_python.counter import count_names
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         prog="hello-python",
         description="Count names from csv",
@@ -15,20 +15,11 @@ def main():
         required=True,
         help="input csv file",
     )
-    # parser.add_argument(
-    #     "--output",
-    #     required=True,
-    #     help="output text file",
-    # )
 
     args = parser.parse_args()
     input_path = Path(args.input)
 
-    with input_path.open(encoding="utf-8", newline="") as f:
-        reader = csv.DictReader(f)
-        names = [row["name"] for row in reader]
-
-    counts = Counter(names)
+    counts = count_names(input_path)
 
     for name, count in counts.items():
         print(f"{name}: {count}")
