@@ -1,15 +1,21 @@
-import sys
+import argparse
 
 
 def main():
-    args = sys.argv[1:]
+    parser = argparse.ArgumentParser(
+        prog="hello-python",
+        description="Simple greeting CLI",
+    )
 
-    if len(args) != 2 or args[0] != "--name":
-        print("Usage: hello-python --name <name>")
-        return
+    parser.add_argument(
+        "--name",
+        required=True,
+        help="name to greet",
+    )
 
-    name = args[1]
-    print(f"Hello, {name}")
+    args = parser.parse_args()
+
+    print(f"Hello, {args.name}")
 
 
 if __name__ == "__main__":
