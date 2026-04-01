@@ -9,6 +9,6 @@
   "author": "akif999",
   "license": "MIT",
   "dependencies": {
-    "ejs": "^2.6.2"
+    "ejs": "^3.1.7"
   }
 }
